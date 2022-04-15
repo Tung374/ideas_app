@@ -1,7 +1,8 @@
 import './App.css';
-import Home from './Components/Home/Home';
-import Login from './Components/Login/Login';
-import Register from './Components/Register/Register';
+import Home from './pages/Home/Home';
+import Login from './pages/Login/Login';
+import Register from './pages/Register/Register';
+import Admin from './pages/Admin/Admin';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useContext } from "react";
 import { AuthContext } from "./context/AuthContext";
@@ -18,13 +19,13 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route exact path="/" element={user ? <Home /> : <Register />}>
+        <Route exact path="/" element={user ? <Home /> : <Navigate to="/login" />}>
           
         </Route>
         <Route path="/login" element={user ? <Navigate to="/" /> : <Login />}></Route>
         <Route path="/register" element={user ? <Navigate to="/" /> : <Register />}>
-          
         </Route>
+        <Route path="/admin" element={user ? <Admin/> : <Navigate to="/login" />}></Route>
       </Routes>
     </Router>
   );
