@@ -19,44 +19,44 @@ router.post("/add", async (req, res) => {
 });
 //update a category
 
-router.put("/:id", async (req, res) => {
+router.put("/:updateId", async (req, res) => {
   try {
-    const category = await Category.findById(req.params.id);
-    if (req.body.role === "admin") {
+    const category = await Category.findById(req.params.updateId);
+    // if (req.body.role === "admin") {
       await category.updateOne({ $set: req.body });
       res.status(200).json("The category has been updated");
-    } else {
-      res.status(403).json("You don't have permission to this operation");
-    }
+    // } else {
+    //   res.status(403).json("You don't have permission to this operation");
+    // }
   } catch (err) {
     res.status(500).json(err);
   }
 });
 //delete a category
 
-router.delete("/:id", async (req, res) => {
-  try {
-    const category = await Category.findById(req.params._id);
-    if (req.body.role === "admin") {
-      await category.deleteOne();
-      res.status(200).json("The category has been deleted");
-    } else {
-      res.status(403).json("You don't have permission to delete categories");
+router.delete("/:deleteId", async (req, res) => {
+  // if (req.body.role==="admin") {
+    try {
+      await Category.findByIdAndDelete(req.params.deleteId);
+      res.status(200).json("Category has been deleted");
+    } catch (err) {
+      return res.status(500).json(err);
     }
-  } catch (err) {
-    res.status(500).json(err);
-  }
+  // }
+  // else {
+  //   return res.status(403).json("You have no permission to delete categories!");
+  // }
 });
 //get a category
 
-router.get("/:id", async (req, res) => {
-  try {
-    const category = await Category.findById(req.params.id);
-    res.status(200).json(category);
-  } catch (err) {
-    res.status(500).json(err);
-  }
-});
+// router.get("/:id", async (req, res) => {
+//   try {
+//     const category = await Category.findById(req.params.id);
+//     res.status(200).json(category);
+//   } catch (err) {
+//     res.status(500).json(err);
+//   }
+// });
 
 //get  all categories
 

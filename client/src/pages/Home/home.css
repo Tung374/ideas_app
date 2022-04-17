@@ -29,7 +29,7 @@
     flex: right;
     flex-direction: column;
     margin-left: 20px;
-
+    overflow-y: scroll;
 }
 .paddingBottom {
     padding-bottom: 20px;
@@ -121,7 +121,6 @@
 .borderlessButton {
     border: none;
     background-color: white;
-    color:darkcyan;
 }
 .ideaListNavigation {
     display: flex;
@@ -147,3 +146,26 @@
     grid-template-columns: 120px auto ;
     margin-bottom: 30px;
   }
+.ideaButton {
+    color:#39ac73;
+}
+
+.modalHeader {
+    background-color: #00b3b3;
+}
+.modalTitle {
+    color: white;
+}
+.myCustomTextArea {
+    border-radius: 10px;
+}
+.myCustomInput {
+    border-radius: 10px;
+}
+.myCustomlabel {
+    margin-right: 5px;
+}
+.myCustomFooterButton{
+    float: right;
+    margin: 10px;
+}

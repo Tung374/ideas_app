@@ -9,8 +9,8 @@ router.post("/add", async (req, res) => {
   const newCloseDate = new CloseDate({
     year: req.body.year,
     openDate: req.body.openDate,
-    closeCommentDate: req.body.closeCommentDate,
-    closePostDate: req.body.closePostDate,
+    commentCloseDate: req.body.commentCloseDate,
+    postCloseDate: req.body.postCloseDate,
   });
   try {
     const savedCloseDate = await newCloseDate.save();
@@ -19,46 +19,46 @@ router.post("/add", async (req, res) => {
     res.status(500).json(err);
   }
 });
-//update a category
+//update a closeDate
 
-router.put("/:id", async (req, res) => {
+router.put("/:updateId", async (req, res) => {
   try {
-    const category = await Category.findById(req.params.id);
-    if (req.body.role === "admin") {
-      await category.updateOne({ $set: req.body });
-      res.status(200).json("The category has been updated");
-    } else {
-      res.status(403).json("You don't have permission to this operation");
-    }
+    const closeDate = await CloseDate.findById(req.params.updateId);
+    // if (req.body.role === "admin") {
+      await closeDate.updateOne({ $set: req.body });
+      res.status(200).json("The close date has been updated");
+    // } else {
+    //   res.status(403).json("You don't have permission to this operation");
+    // }
   } catch (err) {
     res.status(500).json(err);
   }
 });
 //delete a category
 
-router.delete("/:id", async (req, res) => {
-  try {
-    const category = await Category.findById(req.params._id);
-    if (req.body.role === "admin") {
-      await category.deleteOne();
-      res.status(200).json("The category has been deleted");
-    } else {
-      res.status(403).json("You don't have permission to delete categories");
+router.delete("/:deleteId", async (req, res) => {
+  // if (req.body.role=="admin") {
+    try {
+      await CloseDate.findByIdAndDelete(req.params.deleteId);
+      res.status(200).json("Close date has been deleted");
+    } catch (err) {
+      return res.status(500).json(err);
     }
-  } catch (err) {
-    res.status(500).json(err);
-  }
+  // }
+  // else {
+  //   return res.status(403).json("You have no permission to delete categories!");
+  // }
 });
 //get a category
 
-router.get("/:id", async (req, res) => {
-  try {
-    const category = await Category.findById(req.params.id);
-    res.status(200).json(category);
-  } catch (err) {
-    res.status(500).json(err);
-  }
-});
+// router.get("/:id", async (req, res) => {
+//   try {
+//     const category = await Category.findById(req.params.id);
+//     res.status(200).json(category);
+//   } catch (err) {
+//     res.status(500).json(err);
+//   }
+// });
 
 //get  all closeDates
 

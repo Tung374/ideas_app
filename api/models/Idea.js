@@ -10,6 +10,11 @@ const IdeaSchema = new mongoose.Schema(
         type: String,
         required: true,
       },
+    title: {
+      type: String,
+      max: 50,
+      required: true,
+    },
     desc: {
       type: String,
       max: 500,
@@ -18,7 +23,15 @@ const IdeaSchema = new mongoose.Schema(
       type: String,
        default: "idea/Hide yo pain Harold.png",
     },
+    docsUrls: {
+      type: Array,
+      default: []
+    },
     likes: {
+      type: Array,
+      default: [],
+    },
+    comment: {
       type: Array,
       default: [],
     },

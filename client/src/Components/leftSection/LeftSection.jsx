@@ -9,12 +9,16 @@ import { AuthContext } from "../../context/AuthContext";
 
 function LeftSection () {
     const [showPostModal, setShowPostModal] = useState(false);
-    const handleClosePostForm = () => setShowPostModal(false);
+    const handleClosePostForm = () => {
+        setShowPostModal(false);
+        setIsIdeaPosted(false)
+    }
     const handleShowPostForm = () => setShowPostModal(true);
 
     const { user} = useContext(AuthContext);
     const PF = process.env.REACT_APP_PUBLIC_FOLDER
     // post Idea
+    const addTitle = useRef("")
     const addDesc = useRef("")
     const addCategoryId = useRef("")
     
@@ -23,9 +27,20 @@ function LeftSection () {
         { value: '62547239de3b73d4f3fc2362', label: 'AI' },
         { value: '6254728bde3b73d4f3fc2364', label: 'HRM' },
       ];
-    const handleAddCategory = async (e) => {
+
+    const [selectedFiles, setSelectedFiles] = useState([]);
+    const handleFileSelect = (event) => {
+        setSelectedFiles(event.target.files)
+      }
+
+    const handleAddIdea = async (e) => {
         e.preventDefault();
         const isError = false
+        if (addTitle.current.value.length > 50) 
+        {
+            addDesc.current.setCustomValidity("Title must not exceed 50 characters");
+            isError = true
+        }
         if (addDesc.current.value.length > 500) 
         {
             addDesc.current.setCustomValidity("Description must not exceed 500 characters");
@@ -34,35 +49,96 @@ function LeftSection () {
         if(isError == false) {
             const body = {
                 posterId: user._id,
+                title: addTitle.current.value,
                 desc: addDesc.current.value,
                 categoryId: addCategoryId.current.value,
             };
             try {
-              await axios.post("/ideas/add", body);
-            } catch (err) {
-              console.log(err);
-            }
+                const formData = new FormData();
+                for(var i = 0; i < selectedFiles.length; i++) {
+                    formData.append("ideaDocs", selectedFiles[i])
+                }
+                // await axios.post("/ideas/add", formData , body);
+                await axios.post("/ideas/add", body).then(res => {
+                    console.log(res.data)
+                    setIdeaId(res.data._id)
+                })
+                showFileInput()
+              } catch (err) {
+                console.log(err);
+              }
           }
-        handleClosePostForm()
     }
+
+    const [isIdeaPosted, setIsIdeaPosted] = useState(false)
+    const [ideaId, setIdeaId] = useState("")
+    const showFileInput = () => {
+        setIsIdeaPosted(true)
+    }
+    const closeFileInput = () => {
+        setIsIdeaPosted(false)
+    }
+    const fileInput = (showInput) => {
+        if(showInput == true) {
+            return (
+            <div className="grid-container">
+                <input name="ideaDocs" type="file" accept=".docx,.pdf" multiple onChange={handleFileSelect}/>
+            </div>
+        )
+        }
+    }
+    const handleButtons = (showInput) => {
+        if(showInput== true) {
+            return (
+            <Button className="myCustomFooterButton" onClick={handleChangeFiles} variant="primary">
+                Upload Files
+            </Button>
+            )
+        } else {
+            return (
+            <Button className="myCustomFooterButton" onClick={handleAddIdea} variant="primary">
+                Post Idea
+            </Button>
+            )
+        }
+    }
+
+    const handleChangeFiles = async (e) => {
+        e.preventDefault();
+        try {
+            const formData = new FormData();
+            for(var i = 0; i < selectedFiles.length; i++) {
+                formData.append("ideaDocs", selectedFiles[i])
+            }
+            await axios.put("/ideas/changeIdeaFiles/" + ideaId , formData,{});
+            closeFileInput()
+            handleClosePostForm()
+            } catch (err) {
+            console.log(err);
+            }
+    }
+
     return (
         <div className="leftSection">
                 <img className="paddingBottom userAvatar"  src={user.profilePicture
                 ? PF + user.profilePicture
                 : PF + "person/noAvatar.png"} alt=""></img>
-                {user.role}
-                {user._id}
                 <Button 
                 onMouseOver = {({target}) => target.style.backgroundColor="#008080"}
                 onMouseOut = {({target}) => target.style.backgroundColor="#009999"}
                 className="postButton"
                 onClick={handleShowPostForm}>Post Idea</Button>
+                {/* Post Idea */}
                 <Modal className="myModal" show={showPostModal} onHide={handleClosePostForm}>
                 <Modal.Header closeButton>
                     <Modal.Title>Post Idea</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <form onSubmit={handleAddCategory}>
+                    <form>
+                        <div className="grid-container">
+                            <label className="myCustomlabel item1">Idea Title:</label>
+                            <textarea className="myCustomTextArea item2" ref={addTitle} placeholder="Title here" required type="text"/>
+                        </div>
                         <div className="grid-container">
                             <label className="myCustomlabel item1">Idea Description:</label>
                             <textarea className="myCustomTextArea item2" ref={addDesc} placeholder="Description here" required type="text"/>
@@ -74,15 +150,15 @@ function LeftSection () {
                                 <option value="62547239de3b73d4f3fc2362">AI</option>
                                 <option value="6254728bde3b73d4f3fc2364">HRM</option>
                             </select>
-                            {/* <Select ref={addCategoryId} 
-                                    // defaultValue={addCategoryId}
-                                    // onChange={setAddCategoryId}
-                                    options={options}>
-                            </Select> */}
                         </div>
-                        <Button className="myCustomFooterButton" type="submit" variant="primary">
-                            Post
-                        </Button>
+                        {fileInput(isIdeaPosted)}
+                        {/* <div className="grid-container">
+                            <input name="ideaDocs" type="file" accept=".docx,.pdf" multiple onChange={handleFileSelect}/>
+                        </div> */}
+                        {/* <Button className="myCustomFooterButton" onClick={handleAddIdea} variant="primary">
+                            Post Idea
+                        </Button> */}
+                        {handleButtons(isIdeaPosted)}
                         <Button className="myCustomFooterButton" variant="secondary" onClick={handleClosePostForm}>
                             Cancel
                         </Button>

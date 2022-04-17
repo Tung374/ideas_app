@@ -22,7 +22,7 @@ function TopNavigation (props) {
         if(user.role=="admin") 
         {
             return (
-                <Dropdown.Item eventKey="/admin">Management Studio</Dropdown.Item>
+                <Dropdown.Item eventKey="/admin/category">Management Studio</Dropdown.Item>
         )}
     }
     

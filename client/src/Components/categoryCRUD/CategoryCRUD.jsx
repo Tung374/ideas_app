@@ -3,15 +3,15 @@ import axios from "axios";
 import { IoAddCircleSharp} from "react-icons/io5";
 import { AiFillDelete, AiFillEdit } from "react-icons/ai";
 import { BiDetail } from "react-icons/bi";
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useContext } from 'react';
 import { useNavigate } from "react-router";
 // to install: npm install react-bootstrap bootstrap@5.1.3
 import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 import Table from 'react-bootstrap/Table';
-function CategoryCRUD (props) {
-
-    const {categories} = props
+import { AuthContext } from "../../context/AuthContext";
+function CategoryCRUD () {
+    const { user} = useContext(AuthContext);
 
     const [categoryId, setCategoryId] = useState("");
     const [categoryName, setCategoryName] = useState("");
@@ -40,6 +40,7 @@ function CategoryCRUD (props) {
             };
             try {
               await axios.post("/categories/add", body);
+              setReset(!reset)
               handleCloseAddForm()
             } catch (err) {
               console.log(err);
@@ -56,6 +57,19 @@ function CategoryCRUD (props) {
         setCategoryName(name);
         setCategoryDesc(desc);
     }
+    const handleDeleteCategory = async (e) => {
+        e.preventDefault()
+        try {
+            let role = user.role
+            let deleteId = categoryId
+            const body = {role}
+            await axios.delete("/categories/" + deleteId, body);
+            setReset(!reset)
+          } catch (err) {
+            console.log(err);
+          }
+        handleCloseDeleteForm()
+    }
     // Update modal
     const [showUpdateModal, setShowUpdateModal] = useState(false);
     const handleCloseUpdateForm = () => setShowUpdateModal(false);
@@ -64,6 +78,20 @@ function CategoryCRUD (props) {
          setCategoryId(id);
         setCategoryName(name);
         setCategoryDesc(desc);
+    }
+    const handleUpdateCategory = async (e) => {
+        e.preventDefault()
+        try {
+            const body = {
+                name : categoryName, 
+                desc: categoryDesc, }
+                let updateId = categoryId
+            await axios.put("/categories/" + updateId, body);
+          } catch (err) {
+            console.log(err);
+          }
+        handleCloseUpdateForm()
+        setReset(!reset)
     }
     // Details modal
     const [showDetailModal, setShowDetailModal] = useState(false);
@@ -74,6 +102,21 @@ function CategoryCRUD (props) {
        setCategoryName(name);
        setCategoryDesc(desc);
     }
+
+    const [categories, setCategories] = useState([])
+    const [reset, setReset] = useState(false)
+    useEffect(() => {
+        const fetchCategories = async () => {
+            try {
+                const res = await axios.get("/categories/allCategories", {})
+                setCategories(res.data);
+            }
+            catch (err) {
+                console.log(err)
+            }
+        };
+        fetchCategories();
+    }, [reset]);
 
     return (
         <div className="bottomRightSection">
@@ -103,32 +146,22 @@ function CategoryCRUD (props) {
                                 <td className="tableButtonContainer">
                                     <AiFillDelete className="deleteButton iconSize"
                                     onMouseOver = {({target}) => target.style.color="#b30000"}
-                                    onMouseOut = {({target}) => target.style.color="red"} onClick={()=> handleShowDeleteForm(value[3], value[0], value[2])}></AiFillDelete >
+                                    onMouseOut = {({target}) => target.style.color="red"} onClick={()=> handleShowDeleteForm(value._id, value.name, value.desc)}></AiFillDelete >
                                 </td>
                                 <td className="tableButtonContainer">
                                     <AiFillEdit className="editButton iconSize"
                                     onMouseOver = {({target}) => target.style.backgroundColor="#cccc00"}
-                                    onMouseOut = {({target}) => target.style.backgroundColor="yellow"} onClick={()=> handleShowUpdateForm(value[3], value[0], value[2])}></AiFillEdit>
+                                    onMouseOut = {({target}) => target.style.backgroundColor="yellow"} onClick={()=> handleShowUpdateForm(value._id, value.name, value.desc)}></AiFillEdit>
                                 </td>
                                 <td className="tableButtonContainer">
                                     <BiDetail className="detailButton iconSize"
                                     onMouseOver = {({target}) => target.style.backgroundColor="#004080"}
-                                    onMouseOut = {({target}) => target.style.backgroundColor="#0066cc"} onClick={()=> handleShowDetailForm(value[3], value[0], value[2])}></BiDetail>
+                                    onMouseOut = {({target}) => target.style.backgroundColor="#0066cc"} onClick={()=> handleShowDetailForm(value._id, value.name, value.desc)}></BiDetail>
                                 </td>
                             </tr>
                             })}
                             </tbody>
                         </Table>
-                    </div>
-
-                    <div className="categoryContainer">
-                        <u className="bigLabel">Categories:</u>
-                        {categories.map((value, index) => {
-                            return <div>
-                                {value[0]}
-                                ({value[1]})
-                            </div>
-                        })}
                     </div>
                     {/* Add modal */}
                     <Modal className="myModal" show={showAddModal} onHide={handleCloseAddForm}>
@@ -160,7 +193,7 @@ function CategoryCRUD (props) {
                             <Modal.Title className="modalTitle">Are you sure to delete this category?</Modal.Title>
                         </Modal.Header>
                         <Modal.Body>
-                            <form>
+                            <form onSubmit={handleDeleteCategory}>
                             <div className="grid-container">
                                     <label className="myCustomlabel item1">Category ID:</label>
                                     <label className="myCustomlabel item2">{categoryId}</label>
@@ -173,16 +206,14 @@ function CategoryCRUD (props) {
                                     <label className="myCustomlabel item1">Category Description:</label>
                                     <label className="myCustomlabel item2">{categoryDesc}</label>
                                 </div>
+                                <Button className="myCustomFooterButton" type="submit" variant="primary">
+                                    Confirm Delete
+                                </Button>
+                                <Button className="myCustomFooterButton" variant="secondary" onClick={handleCloseDeleteForm}>
+                                    Cancel
+                                </Button>
                             </form>
                         </Modal.Body>
-                        <Modal.Footer>
-                            <Button variant="secondary" onClick={handleCloseDeleteForm}>
-                                Cancel
-                            </Button>
-                            <Button variant="primary" onClick={handleCloseDeleteForm}>
-                                Confirm Delete
-                            </Button>
-                        </Modal.Footer>
                     </Modal>
                     {/* Update modal */}
                     <Modal className="myModal" show={showUpdateModal} onHide={handleCloseUpdateForm}>
@@ -190,7 +221,7 @@ function CategoryCRUD (props) {
                             <Modal.Title className="modalTitle">Updating Category</Modal.Title>
                         </Modal.Header>
                         <Modal.Body>
-                            <form>
+                            <form onSubmit={handleUpdateCategory}>
                             <div className="grid-container">
                                     <label className="myCustomlabel item1">Category ID:</label>
                                     <label className="myCustomlabel item2">{categoryId}</label>
@@ -203,16 +234,14 @@ function CategoryCRUD (props) {
                                     <label className="myCustomlabel item1">Category Description:</label>
                                     <input className="myCustomInput item2" value={categoryDesc} onChange={(e) => setCategoryDesc(e.target.value)} required type="text"/>
                                 </div>
+                                <Button className="myCustomFooterButton" type="submit" variant="primary">
+                                    Update
+                                </Button>
+                                <Button className="myCustomFooterButton" variant="secondary" onClick={handleCloseUpdateForm}>
+                                    Cancel
+                                </Button>
                             </form>
                         </Modal.Body>
-                        <Modal.Footer>
-                            <Button variant="secondary" onClick={handleCloseUpdateForm}>
-                                Cancel
-                            </Button>
-                            <Button variant="primary" onClick={handleCloseUpdateForm}>
-                                Confirm Change
-                            </Button>
-                        </Modal.Footer>
                     </Modal>
                     {/* Details modal */}
                     <Modal className="myModal" show={showDetailModal} onHide={handleCloseDetailForm}>

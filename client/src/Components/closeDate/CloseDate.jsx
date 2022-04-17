@@ -3,7 +3,7 @@ import axios from "axios";
 import { IoAddCircleSharp} from "react-icons/io5";
 import { AiFillDelete, AiFillEdit } from "react-icons/ai";
 import { BiDetail } from "react-icons/bi";
-import React, { useState } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from "react-router";
 // to install: npm install react-bootstrap bootstrap@5.1.3
 import Modal from 'react-bootstrap/Modal';
@@ -12,26 +12,44 @@ import Table from 'react-bootstrap/Table';
 // to install: npm install react-datepicker --save
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-
-
-function CloseDate (props) {
-
-    const year1 = ["#1", 2019, "1/1/2019", "30/4/2019", "30/6/2019"]
-    const year2 = ["#2", 2020, "1/1/2020", "30/4/2020", "30/6/2020"]
-    const year3 = ["#3", 2021, "1/1/2021", "30/4/2021", "30/6/2021"]
-    const year4 = ["#4", 2022, "1/1/2022", "30/4/2022", "30/6/2021"]
-    const years = [year1, year2, year3, year4]
-    const {closeDates} = props
+import { AuthContext } from "../../context/AuthContext";
+function CloseDate () {
+    const { user} = useContext(AuthContext);
 
     const [closeDateId, setCloseDateId] = useState("");
     const [year, setYear] = useState("")
+    
+    const [ addOpenDate, setAddOpenDate] = useState(new Date())
+    const [ addCommentCloseDate, setAddCommentCloseDate] = useState(new Date())
+    const [ addPostCloseDate, setAddPostCloseDate] = useState(new Date())
+
     const [openDate, setOpenDate] = useState(new Date());
     const [commentCloseDate, setCommentCloseDate] = useState(new Date());
     const [postCloseDate, setPostCloseDate] = useState(new Date());
+
+    const [newOpenDate, setNewOpenDate] = useState(new Date());
+    const [newCommentCloseDate, setNewCommentCloseDate] = useState(new Date());
+    const [newPostCloseDate, setNewPostCloseDate] = useState(new Date());
     // Add modal
     const [showAddModal, setShowAddModal] = useState(false);
     const handleCloseAddForm = () => setShowAddModal(false);
     const handleShowAddForm = () => setShowAddModal(true);
+    const handleAddCloseDate = async (e) => {
+        e.preventDefault();
+        const body = {
+            year: year,
+            openDate: addOpenDate,
+            commentCloseDate: addCommentCloseDate,
+            postCloseDate: addPostCloseDate,
+        };
+        try {
+            await axios.post("/closeDates/add", body);
+            setReset(!reset)
+            handleCloseAddForm()
+        } catch (err) {
+            console.log(err);
+        }
+    }
     // Delete modal
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const handleCloseDeleteForm = () => setShowDeleteModal(false);
@@ -44,6 +62,19 @@ function CloseDate (props) {
         setCommentCloseDate(commentClose);
         setPostCloseDate(postClose);
     }
+    const handleDeleteCloseDate = async (e) => {
+        e.preventDefault()
+        try {
+            let role = user.role
+            let deleteId = closeDateId
+            const body = {role}
+            await axios.delete("/closeDates/" + deleteId, body);
+            setReset(!reset)
+          } catch (err) {
+            console.log(err);
+          }
+        handleCloseDeleteForm()
+    }
     // Update modal
     const [showUpdateModal, setShowUpdateModal] = useState(false);
     const handleCloseUpdateForm = () => setShowUpdateModal(false);
@@ -55,6 +86,22 @@ function CloseDate (props) {
         setOpenDate(open);
         setCommentCloseDate(commentClose);
         setPostCloseDate(postClose);
+    }
+    const handleUpdateCloseDate = async (e) => {
+        e.preventDefault()
+        try {
+            const body = {
+                year : year, 
+                openDate: newOpenDate,
+                commentCloseDate : newCommentCloseDate,
+                postCloseDate: newPostCloseDate}
+            let updateId = closeDateId
+            await axios.put("/closeDates/" + updateId, body);
+          } catch (err) {
+            console.log(err);
+          }
+        handleCloseUpdateForm()
+        setReset(!reset)
     }
     // Details modal
     const [showDetailModal, setShowDetailModal] = useState(false);
@@ -69,21 +116,20 @@ function CloseDate (props) {
         setPostCloseDate(postClose);
    }
 
-   const handleAddCloseDate = async (e) => {
-    e.preventDefault();
-    const body = {
-        year: year,
-        openDate: openDate,
-        commentCloseDate: commentCloseDate,
-        postCloseDate: postCloseDate,
+   const [closeDates, setCloseDates] = useState([])
+   const [reset, setReset] = useState(false)
+   useEffect(() => {
+    const fetchCloseDates = async () => {
+        try {
+            const res = await axios.get("/closeDates/allCloseDates", {})
+            setCloseDates(res.data);
+        }
+        catch (err) {
+            console.log(err)
+        }
     };
-    try {
-        await axios.post("/closeDates/add", body);
-        handleCloseAddForm()
-    } catch (err) {
-        console.log(err);
-    }
-}
+    fetchCloseDates();
+}, [reset]);
 
     return (
         <div className="bottomRightSection">
@@ -147,18 +193,18 @@ function CloseDate (props) {
                                 </div>
                                 <div className="grid-container">
                                     <label className="myCustomlabel item1">Open Date:</label>
-                                    <DatePicker required showYearDropdown scrollableYearDropdown showTimeSelect dateFormat="Pp" selected={openDate} onChange={(date) => setOpenDate(date)} />
+                                    <DatePicker required showYearDropdown scrollableYearDropdown showTimeSelect dateFormat="Pp" selected={addOpenDate} onChange={(date) => setAddOpenDate(date)} />
                                 </div>
                                 <div className="grid-container">
                                     <label className="myCustomlabel item1">Comment Close Date:</label>
-                                    <DatePicker required showYearDropdown scrollableYearDropdown showTimeSelect dateFormat="Pp" selected={commentCloseDate} onChange={(date) => setCommentCloseDate(date)} />
+                                    <DatePicker required showYearDropdown scrollableYearDropdown showTimeSelect dateFormat="Pp" selected={addCommentCloseDate} onChange={(date) => setAddCommentCloseDate(date)} />
                                 </div>
                                 <div className="grid-container">
                                     <label className="myCustomlabel item1">Post Close Date:</label>
-                                    <DatePicker required showYearDropdown scrollableYearDropdown showTimeSelect dateFormat="Pp" selected={postCloseDate} onChange={(date) => setPostCloseDate(date)} />
+                                    <DatePicker required showYearDropdown scrollableYearDropdown showTimeSelect dateFormat="Pp" selected={addPostCloseDate} onChange={(date) => setAddPostCloseDate(date)} />
                                 </div>
                                 <Button className="myCustomFooterButton" type="submit" variant="primary">
-                                    Post
+                                    Create
                                 </Button>
                                 <Button className="myCustomFooterButton" variant="secondary" onClick={handleCloseAddForm}>
                                     Cancel
@@ -172,7 +218,7 @@ function CloseDate (props) {
                             <Modal.Title className="modalTitle">Are you sure to delete this category?</Modal.Title>
                         </Modal.Header>
                         <Modal.Body>
-                            <form>
+                            <form onSubmit={handleDeleteCloseDate}>
                             <div className="grid-container">
                                     <label className="myCustomlabel item1">Close Date ID:</label>
                                     <label className="myCustomlabel item2">{closeDateId}</label>
@@ -193,16 +239,14 @@ function CloseDate (props) {
                                     <label className="myCustomlabel item1">Post Close Date:</label>
                                     <label className="myCustomlabel item2">{postCloseDate}</label>
                                 </div>
+                                <Button className="myCustomFooterButton" type="submit" variant="primary">
+                                    Confirm Delete
+                                </Button>
+                                <Button className="myCustomFooterButton" variant="secondary" onClick={handleCloseDeleteForm}>
+                                    Cancel
+                                </Button>
                             </form>
                         </Modal.Body>
-                        <Modal.Footer>
-                            <Button variant="secondary" onClick={handleCloseDeleteForm}>
-                                Cancel
-                            </Button>
-                            <Button variant="primary" onClick={handleCloseDeleteForm}>
-                                Confirm Delete
-                            </Button>
-                        </Modal.Footer>
                     </Modal>
                     {/* Update modal */}
                     <Modal className="myModal" show={showUpdateModal} onHide={handleCloseUpdateForm}>
@@ -210,7 +254,7 @@ function CloseDate (props) {
                             <Modal.Title className="modalTitle">Updating Category</Modal.Title>
                         </Modal.Header>
                         <Modal.Body>
-                            <form>
+                            <form onSubmit={handleUpdateCloseDate}>
                                 <div className="grid-container">
                                     <label className="myCustomlabel item1">Close Date ID:</label>
                                     <label className="myCustomlabel item2">{closeDateId}</label>
@@ -221,24 +265,57 @@ function CloseDate (props) {
                                 </div>
                                 <div className="grid-container">
                                     <label className="myCustomlabel item1">Post Open Date:</label>
-                                    <DatePicker showYearDropdown scrollableYearDropdown showTimeSelect dateFormat="Pp" selected={openDate} onChange={(date) => setOpenDate(date)} />
+                                    <DatePicker showYearDropdown scrollableYearDropdown showTimeSelect dateFormat="Pp" selected={newOpenDate} onChange={(date) => setNewOpenDate(date)} />
                                 </div>
                                 <div className="grid-container">
                                     <label className="myCustomlabel item1">Comment Close Date:</label>
-                                    <DatePicker showYearDropdown scrollableYearDropdown showTimeSelect dateFormat="Pp" selected={commentCloseDate} onChange={(date) => setCommentCloseDate(date)} />
+                                    <DatePicker showYearDropdown scrollableYearDropdown showTimeSelect dateFormat="Pp" selected={newCommentCloseDate} onChange={(date) => setNewCommentCloseDate(date)} />
                                 </div>
                                 <div className="grid-container">
                                     <label className="myCustomlabel item1">Post Close Date:</label>
-                                    <DatePicker showYearDropdown scrollableYearDropdown showTimeSelect dateFormat="Pp" selected={postCloseDate} onChange={(date) => setPostCloseDate(date)} />
+                                    <DatePicker showYearDropdown scrollableYearDropdown showTimeSelect dateFormat="Pp" selected={newPostCloseDate} onChange={(date) => setNewPostCloseDate(date)} />
+                                </div>
+                                <Button className="myCustomFooterButton" type="submit" variant="primary">
+                                    Update
+                                </Button>
+                                <Button className="myCustomFooterButton" variant="secondary" onClick={handleCloseUpdateForm}>
+                                    Cancel
+                                </Button>
+                            </form>
+                        </Modal.Body>
+                    </Modal>
+                    {/* Detail modal */}
+                    <Modal className="myModal" show={showDetailModal} onHide={handleCloseDetailForm}>
+                        <Modal.Header closeButton className="modalHeader">
+                            <Modal.Title className="modalTitle">Category Details</Modal.Title>
+                        </Modal.Header>
+                        <Modal.Body>
+                            <form>
+                                <div className="grid-container">
+                                    <label className="myCustomlabel item1">Close Date ID:</label>
+                                    <label className="myCustomlabel item2">{closeDateId}</label>
+                                </div>
+                                <div className="grid-container">
+                                    <label className="myCustomlabel item1">Year:</label>
+                                    <label className="myCustomlabel item2">{year}</label>
+                                </div>
+                                <div className="grid-container">
+                                    <label className="myCustomlabel item1">Open Date:</label>
+                                    <label className="myCustomlabel item2">{openDate}</label>
+                                </div>
+                                <div className="grid-container">
+                                    <label className="myCustomlabel item1">Comment Close Date:</label>
+                                    <label className="myCustomlabel item2">{commentCloseDate}</label>
+                                </div>
+                                <div className="grid-container">
+                                    <label className="myCustomlabel item1">Post Close Date:</label>
+                                    <label className="myCustomlabel item2">{postCloseDate}</label>
                                 </div>
                             </form>
                         </Modal.Body>
                         <Modal.Footer>
-                            <Button variant="secondary" onClick={handleCloseUpdateForm}>
-                                Cancel
-                            </Button>
-                            <Button variant="primary" onClick={handleCloseUpdateForm}>
-                                Confirm Change
+                            <Button variant="primary" onClick={handleCloseDetailForm}>
+                                Close
                             </Button>
                         </Modal.Footer>
                     </Modal>

@@ -15,18 +15,15 @@ import Table from 'react-bootstrap/Table';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
-function StaffCRUD (props) {
+function StaffCRUD () {
+    const navigate = useNavigate();
+    const handleNavigate = (route) => {
+        navigate(route);
+    }
     const DepA = ["Dep A", 10]
     const DepB = ["Dep B", 20]
     const departments = [DepA, DepB]
-    const Tung = ["#1", "Dep A", "Tung", "4/3/2001", "Admin", "0585856070", "tungnngch190619@fpt.edu.vn", 123456 ]
-    const Hung = ["#2", "Dep A", "Hung", "4/3/2001", "Admin", "0585856070", "tungnngch190619@fpt.edu.vn", 123456 ]
-    const Khoa = ["#3", "Dep B", "Khoa", "4/3/2001", "Admin", "0585856070", "tungnngch190619@fpt.edu.vn", 123456 ]
-    const Quyet = ["#4", "Dep A", "Tung", "4/3/2001", "Admin", "0585856070", "tungnngch190619@fpt.edu.vn", 123456 ]
-    const accounts = [Tung, Hung, Khoa, Quyet];
-
     //const [users, setUsers] = useState()
-    const {users} = props
     const { user} = useContext(AuthContext);
 
     const [showAddModal, setShowModal] = useState(false);
@@ -76,6 +73,7 @@ function StaffCRUD (props) {
             };
             try {
               await axios.post("/auth/register", body);
+              setReset(!reset)
               handleCloseAddForm()
             } catch (err) {
               console.log(err);
@@ -108,8 +106,9 @@ function StaffCRUD (props) {
         try {
             let role = user.role
             let deleteId = userId
-            const body = {role, deleteId}
-            await axios.delete("/users/", body);
+            const body = {role}
+            await axios.delete("/users/" + deleteId, body);
+            setReset(!reset)
           } catch (err) {
             console.log(err);
           }
@@ -131,14 +130,32 @@ function StaffCRUD (props) {
     const handleUpdateUser = async (e) => {
         e.preventDefault()
         try {
-            let role = user.role
-            let deleteId = userId
-            const body = {role, userName, userEmail, userPassword, userRole, userDepartment, userPhone }
-            await axios.put("/users/:"+userId, body);
+            if(userPassword && userPassword.length > 5)
+            {
+                const body = {
+                    username : userName, 
+                    email: userEmail, 
+                    password: userPassword, 
+                    role: userRole, 
+                    department: userDepartment, 
+                    phone: userPhone, }
+                    let updateId = userId
+                await axios.put("/users/" + updateId, body);
+            } else {
+                const body = {
+                    username : userName, 
+                    email: userEmail, 
+                    role: userRole, 
+                    department: userDepartment, 
+                    phone: userPhone, }
+                    let updateId = userId
+                await axios.put("/users/" + updateId, body);
+            }
           } catch (err) {
             console.log(err);
           }
         handleCloseUpdateForm()
+        setReset(!reset)
     }
     // Details modal
     const [showDetailModal, setShowDetailModal] = useState(false);
@@ -152,6 +169,20 @@ function StaffCRUD (props) {
         setUserDepartment(dep);
         setUserPhone(phone)
     }
+    const [users, setUsers] = useState([])
+    const [reset, setReset] = useState(false)
+    useEffect(() => {
+        const fetchUsers = async () => {
+            try {
+                const res = await axios.get("/users/allUsers", {})
+                setUsers(res.data);
+            }
+            catch (err) {
+                console.log(err)
+            }
+        };
+        fetchUsers();
+    }, [reset]);
 
 
     return (
@@ -211,15 +242,7 @@ function StaffCRUD (props) {
                             </tbody>
                         </Table>
                     </div>
-                    <div className="departmentContainer">
-                        <u className="bigLabel">Departments:</u>
-                        {departments.map((value, index) => {
-                            return <div>
-                                {value[0]}
-                                ({value[1]})
-                            </div>
-                        })}
-                    </div>
+                    
                     {/* Add modal */}
                     <Modal className="myModal" show={showAddModal} onHide={handleCloseAddForm}>
                         <Modal.Header closeButton  className="modalHeader">
@@ -240,7 +263,7 @@ function StaffCRUD (props) {
                                     <input className="myCustomInput item2" ref={addPassword} placeholder="" required type="password" minLength="6"/>
                                 </div>
                                 <div className="grid-container">
-                                    <label className="myCustomlabel item1">Password:</label>
+                                    <label className="myCustomlabel item1"> Confirm Password:</label>
                                     <input className="myCustomInput item2" ref={addPasswordAgain} placeholder="" required type="password" minLength="6"/>
                                 </div>
                                 <div className="grid-container">
@@ -253,7 +276,11 @@ function StaffCRUD (props) {
                                 </div>
                                 <div className="grid-container">
                                     <label className="myCustomlabel item1">Department:</label>
-                                    <input className="myCustomInput item2" ref={addDepartment} placeholder="Dept" required type="text"/>
+                                    <select ref={addDepartment}>
+                                        <option value="dept a">Dept A</option>
+                                        <option value="dept b">Dept B</option>
+                                        <option value="dept c">Dept C</option>
+                                    </select>
                                 </div>
                                 <div className="grid-container">
                                     <label className="myCustomlabel item1">Phone:</label>
@@ -328,7 +355,7 @@ function StaffCRUD (props) {
                                     <input className="myCustomInput item2" value={userEmail} onChange={(e) => setUserEmail(e.target.value)} required type="email"/>
                                 </div>
                                 <div className="grid-container">
-                                    <label className="myCustomlabel item1">Password:</label>
+                                    <label className="myCustomlabel item1">New Password:</label>
                                     <input className="myCustomInput item2" value={userPassword} onChange={(e) => setUserPassword(e.target.value)} placeholder="" type="password" minLength="6"/>
                                 </div>
                                 <div className="grid-container">
@@ -341,7 +368,11 @@ function StaffCRUD (props) {
                                 </div>
                                 <div className="grid-container">
                                     <label className="myCustomlabel item1">User Department:</label>
-                                    <input className="myCustomInput item2" value={userDepartment} onChange={(e) => setUserDepartment(e.target.value)} type="text"/>
+                                    <select value={userDepartment} onChange={(e) => setUserDepartment(e.target.value)}>
+                                        <option value="dept a">Dept A</option>
+                                        <option value="dept b">Dept B</option>
+                                        <option value="dept c">Dept C</option>
+                                    </select>
                                 </div>
                                 <div className="grid-container">
                                     <label className="myCustomlabel item1">User Phone:</label>

@@ -25,7 +25,7 @@ function App() {
         <Route path="/login" element={user ? <Navigate to="/" /> : <Login />}></Route>
         <Route path="/register" element={user ? <Navigate to="/" /> : <Register />}>
         </Route>
-        <Route path="/admin" element={user ? <Admin/> : <Navigate to="/login" />}></Route>
+        <Route path="/admin/:adminContentProp" element={user ? <Admin/> : <Navigate to="/login" />}></Route>
       </Routes>
     </Router>
   );
