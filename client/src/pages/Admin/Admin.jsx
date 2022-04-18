@@ -20,71 +20,35 @@ import TopNavigation from '../../Components/topNavigation/TopNavigation'
 import CategoryCRUD from '../../Components/categoryCRUD/CategoryCRUD'
 import StaffCRUD from '../../Components/staffCRUD/StaffCRUD'
 import CloseDate from '../../Components/closeDate/CloseDate'
+
+import { useParams } from "react-router-dom";
+
 function Home () {
     const navigate = useNavigate();
-    const ideas = [1,2,3,4,5]
-    const handleNavigate = (eventKey) => {
-        navigate(eventKey);
+    const handleNavigate = (route) => {
+        navigate(route);
     }
-    const [adminContent, setAdminContent] = useState("category")
-    const [users, setUsers] = useState([])
-    const [categories, setCategories] = useState([])
-    const [closeDates, setCloseDates] = useState([])
+    const { adminContentProp } = useParams();
 
 
 
     const showContent = (contentName) => {
         if(contentName=="category") {
             return (
-                <CategoryCRUD categories={categories}></CategoryCRUD>
+                <CategoryCRUD></CategoryCRUD>
             )
         }
-        if(contentName=="staff") {
+        if(contentName=="user") {
             return (
-                <StaffCRUD users={users}></StaffCRUD>
+                <StaffCRUD></StaffCRUD>
             )
         }
         if(contentName=="closeDate") {
             return (
-                <CloseDate closeDates={closeDates}></CloseDate>
+                <CloseDate></CloseDate>
             )
         }
     }
-
-    useEffect(() => {
-        const fetchUsers = async () => {
-            try {
-                const res = await axios.get("/users/allUsers", {})
-                setUsers(res.data);
-            }
-            catch (err) {
-                console.log(err)
-            }
-        };
-        fetchUsers();
-
-        const fetchCategories = async () => {
-            try {
-                const res = await axios.get("/categories/allCategories", {})
-                setCategories(res.data);
-            }
-            catch (err) {
-                console.log(err)
-            }
-        };
-        fetchCategories();
-
-        const fetchCloseDates = async () => {
-            try {
-                const res = await axios.get("/closeDates/allCloseDates", {})
-                setCloseDates(res.data);
-            }
-            catch (err) {
-                console.log(err)
-            }
-        };
-        fetchCloseDates();
-    }, [adminContent]);
 
 
     return (
@@ -96,22 +60,22 @@ function Home () {
                     <TopNavigation currentMode="Management Studio"></TopNavigation>
 
                     <div className="navigationTop">
-                        <Button  className="navigationContent signOutButton takeRemainingSpace" onClick={() => setAdminContent("category")}>
+                        <Button  className="navigationContent signOutButton takeRemainingSpace" onClick={() => handleNavigate("/admin/category")}>
                             <BiCategory className="iconSize paddingRight"></BiCategory>
                             <label className="paddingRight">Categories</label>
                         </Button>
 
-                        <Button  className="navigationContent signOutButton takeRemainingSpace" onClick={() => setAdminContent("staff")}>
+                        <Button  className="navigationContent signOutButton takeRemainingSpace" onClick={() => handleNavigate("/admin/user")}>
                             <BsPeopleFill className="iconSize paddingRight"></BsPeopleFill>
-                            <label className="paddingRight">Staff</label>
+                            <label className="paddingRight">Users</label>
                         </Button>
-                        <Button  className="navigationContent signOutButton takeRemainingSpace" onClick={() => setAdminContent("closeDate")}>
+                        <Button  className="navigationContent signOutButton takeRemainingSpace" onClick={() => handleNavigate("/admin/closeDate")}>
                             <AiFillCalendar className="iconSize paddingRight"></AiFillCalendar>
                             <label className="paddingRight">Closing Date</label>
                         </Button>
                     </div>
                 </div>
-                {showContent(adminContent)}
+                {showContent(adminContentProp)}
             </div>
         </body>
     )
