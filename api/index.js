@@ -24,7 +24,9 @@ mongoose.connect(
   }
 );
 app.use("/images", express.static(path.join(__dirname, "public/images")));
-
+app.get("/",(req,res)=>{
+  res.download("./public/idea/thing_to_design.docx")
+})
 //middleware
 app.use(express.json());
 app.use(helmet());
