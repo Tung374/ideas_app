@@ -15,6 +15,10 @@ function LeftSection () {
     }
     const handleShowPostForm = () => setShowPostModal(true);
 
+    const [showTermsModal, setShowTermsModal] = useState(false);
+    const handleCloseTermsForm = () => setShowTermsModal(false);
+    const handleShowTermsForm = () => setShowTermsModal(true);
+
     const { user} = useContext(AuthContext);
     const PF = process.env.REACT_APP_PUBLIC_FOLDER
     // post Idea
@@ -22,6 +26,7 @@ function LeftSection () {
     const addDesc = useRef("")
     const addCategoryId = useRef("")
     
+    const [selectedCategories, setSelectedCategories] = useState([])
     const options = [
         { value: '625471b6de3b73d4f3fc2360', label: 'IoT' },
         { value: '62547239de3b73d4f3fc2362', label: 'AI' },
@@ -127,11 +132,11 @@ function LeftSection () {
                 onMouseOver = {({target}) => target.style.backgroundColor="#008080"}
                 onMouseOut = {({target}) => target.style.backgroundColor="#009999"}
                 className="postButton"
-                onClick={handleShowPostForm}>Post Idea</Button>
+                onClick={handleShowTermsForm}>Post Idea</Button>
                 {/* Post Idea */}
                 <Modal className="myModal" show={showPostModal} onHide={handleClosePostForm}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Post Idea</Modal.Title>
+                <Modal.Header className="modalHeader" closeButton>
+                    <Modal.Title className="modalTitle">Post Idea</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <form>
@@ -152,17 +157,30 @@ function LeftSection () {
                             </select>
                         </div>
                         {fileInput(isIdeaPosted)}
-                        {/* <div className="grid-container">
-                            <input name="ideaDocs" type="file" accept=".docx,.pdf" multiple onChange={handleFileSelect}/>
-                        </div> */}
-                        {/* <Button className="myCustomFooterButton" onClick={handleAddIdea} variant="primary">
-                            Post Idea
-                        </Button> */}
                         {handleButtons(isIdeaPosted)}
                         <Button className="myCustomFooterButton" variant="secondary" onClick={handleClosePostForm}>
                             Cancel
                         </Button>
                     </form>
+                </Modal.Body>
+            </Modal>
+            {/* Terms and conditions modal */}
+            <Modal className="myModal" show={showTermsModal} onHide={handleCloseTermsForm}>
+                <Modal.Header className="modalHeader" closeButton>
+                    <Modal.Title className="modalTitle">Terms And Conditions</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                        <div>
+                        Do note that your post and the content therein, including your ideas are not subject to copyright laws, and as such can be used by other parties who may have access to it.
+                        </div>
+                        <Button className="myCustomFooterButton" variant="primary" onClick={() => {
+                            handleCloseTermsForm()
+                            handleShowPostForm()}}>
+                            I Accept
+                        </Button>
+                        <Button className="myCustomFooterButton" variant="secondary" onClick={handleCloseTermsForm}>
+                            Cancel
+                        </Button>
                 </Modal.Body>
             </Modal>
             </div>

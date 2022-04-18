@@ -35,6 +35,7 @@ function Home () {
     }
 
     const { user: currentUser, dispatch } = useContext(AuthContext);
+    const [reset, setReset] = useState(false)
 
     const [ideaId, setIdeaId] = useState("")
     const [ideaPosterId, setPosterId] = useState("")
@@ -43,10 +44,16 @@ function Home () {
     const [ideaDesc, setIdeaDesc] = useState("")
     const [ideaImg, setIdeaImg] = useState("")
     const [ideaCreatedAt, setIdeaCreatedAt] = useState(new Date())
+    const [ideaComments, setIdeaComments] = useState([])
+    const [ideaCommenterUsernames, setIdeaCommenterUsernames] = useState([])
     const [showDetailModal, setShowDetailModal] = useState(false);
     const handleCloseDetailForm = () => setShowDetailModal(false);
-    const handleShowDetailForm = (id, posterId, categoryId, title, desc, img, created) => {
+    const handleShowDetailForm = (id, posterId, categoryId, title, desc, img, created, comments) => {
+        setModalValues(id, posterId, categoryId, title, desc, img, created, comments)
+        // getLiked()
         setShowDetailModal(true);
+   }
+   const setModalValues = (id, posterId, categoryId, title, desc, img, created, comments) => {
         setIdeaId(id)
         setPosterId(posterId)
         setIdeaCategoryId(categoryId)
@@ -55,8 +62,32 @@ function Home () {
         setIdeaImg(img)
         created = new Date(created)
         setIdeaCreatedAt(format(created, "dd-MM-yyyy-hh:mm"))
-        getLiked()
+        setIdeaComments(comments)
+        getAllCommentersNames(comments)
+
    }
+   const getAllCommentersNames = (comments) => {
+       setIdeaCommenterUsernames([])
+       comments.map((comment, index) => {
+        //getUsername(comment.commenterId)
+        //console.log(getUsername(comment.commenterId))
+        //setIdeaCommenterUsernames([...ideaCommenterUsernames, getUsername(comment.commenterId)])
+        ideaCommenterUsernames.push(getUsername(comment.commenterId))
+       })
+       console.log(ideaCommenterUsernames)
+   }
+   
+   const [username, setUsername] = useState([])
+
+   const getUsername = async  (userId) => {
+    try {
+        const res = await axios.get("/users/getUsername/" + userId)
+        const name = res.data
+        return name
+    } catch (err) {
+        console.log(err)
+    }
+}
 
     // fetch ideas
     const [ideas, setIdeas] = useState([])
@@ -75,7 +106,7 @@ function Home () {
 
     useEffect(() => {
         fetchIdeas();
-    }, []);
+    }, [reset]);
 
     const ideasContent = () => {
         segmentIdeasList(reversedIdeas)
@@ -126,13 +157,32 @@ function Home () {
         try {
             const res = await axios.get("/ideas/like/" + ideaId, body);
             // return the appropriate color of like button
-            console.log(res.data)
         } catch (err) {
             console.log(err)
         }
+        setReset(!reset)
     }
 
     const commentInput = useRef()
+    const handleComment = async () => {
+        if(commentInput.current.value != null && commentInput.current.value !="") {
+            try {
+                const body = {
+                    userId: user._id,
+                    commentContent: commentInput.current.value,
+                }
+                const res = await axios.put("/ideas/comment/" + ideaId, body);
+                commentInput.current.value = ""
+                
+            } catch (err) {
+            console.log(err);
+            }
+            setReset(!reset)
+        } else {
+            commentInput.current.setCustomValidity("Your comment is empty")
+            commentInput.current.value = ""
+        }
+    }
     
     return (
         <div className="screen">
@@ -158,7 +208,7 @@ function Home () {
                     <div className="ideasContainer">
                         {reversedIdeas.map((value, index) => {
                         return (
-                            <div className="idea" onClick={() => handleShowDetailForm(value._id, value.posterId, value.categoryId, value.title, value.desc, value.img, value.createdAt)}>
+                            <div className="idea" onClick={() => handleShowDetailForm(value._id, value.posterId, value.categoryId, value.title, value.desc, value.img, value.createdAt, value.comment)}>
                                 <div className="postDate paddingSurounding">
                                     {value.createdAt}
                                 </div>
@@ -211,30 +261,38 @@ function Home () {
                         <label className="myCustomlabel item1">Description:</label>
                         <label className="myCustomlabel item2">{ideaDesc}</label>
                     </div>
-                    <div className="navigationContent paddingSurounding">
-                                    <form className="navigationContent takeRemainingSpace">
-                                        <input
-                                        placeholder="Leave a comment..."
-                                        required
-                                        ref={commentInput}
-                                        type="text"
-                                        className="searchInput"
-                                        />
-                                    </form>
-                                    <button className="borderlessButton">
-                                        <IoSend
-                                        className="iconSize ideaButton"></IoSend>
-                                    </button>
-                                    <button className="borderlessButton" ref={likeButton}>
-                                        <AiFillLike
-                                        className="iconSize ideaButton"
-                                        onClick = {({target}) => handleLike(target)}></AiFillLike>
-                                    </button>
-                                    <button className="borderlessButton">
-                                        <FaComments
-                                        className="iconSize ideaButton"></FaComments>
-                                    </button>
-                                </div>
+                    <div className="navigationContent">
+                        <form className=" takeRemainingSpace">
+                            <input
+                            placeholder="Leave a comment..."
+                            required
+                            ref={commentInput}
+                            type="text"
+                            className="searchInput"
+                            />
+                        </form>
+                        <button className="borderlessButton">
+                            <IoSend
+                            className="iconSize ideaButton" onClick={handleComment}></IoSend>
+                        </button>
+                        <button className="borderlessButton" ref={likeButton}>
+                            <AiFillLike
+                            className="iconSize ideaButton"
+                            onClick = {({target}) => handleLike(target)}></AiFillLike>
+                        </button>
+                        <button className="borderlessButton">
+                            <FaComments
+                            className="iconSize ideaButton"></FaComments>
+                        </button>
+                    </div>
+                    {ideaComments.map((comment, index) => {
+                        return (
+                            <div className="comment">
+                                <label className="myCustomlabel item1">{ideaCommenterUsernames[index]}</label>
+                                <label className="myCustomlabel item2">{comment.comment}</label>
+                             </div>
+                        )
+                    })}
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="primary" onClick={handleCloseDetailForm}>

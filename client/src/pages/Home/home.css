@@ -169,3 +169,7 @@
     float: right;
     margin: 10px;
 }
+.comment {
+    display: flex;
+    flex-direction: column;
+}

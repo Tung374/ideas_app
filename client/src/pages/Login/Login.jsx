@@ -1,5 +1,5 @@
-import './login.css'
-import { useContext, useRef } from "react"
+import './login.css';
+import { useContext, useRef } from "react";
 import { loginCall } from "../../apiCalls";
 import { AuthContext } from "../../context/AuthContext";
 
@@ -22,7 +22,6 @@ function Login() {
         );
         handleNavigate("/")
     };
-    console.log(user)
   return (
     <div className="login">
       <div className="loginWrapper">
@@ -52,7 +51,6 @@ function Login() {
             <b className="forgotPassword">Forgot your password?</b>
             <button className="loginButton" type="submit">Login</button>
           </form>
-          <button className="loginButton" onClick={() =>handleNavigate("/register")}>Sign Up</button>
         </div>
       </div>
     </div>

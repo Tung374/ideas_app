@@ -150,6 +150,9 @@ function CloseDate () {
                                     <th>Open Post Date</th>
                                     <th>Close Comment Date</th>
                                     <th>Close Post Date</th>
+                                    <th>Delete</th>
+                                    <th>Edit</th>
+                                    <th>Details</th>
                                 </tr>
                             </thead>
                             <tbody>

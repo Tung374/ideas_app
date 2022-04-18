@@ -25,12 +25,10 @@ const UserSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      require: true,
       default: "staff",
     },
     department: {
       type: String,
-      require: true,
       max: 50,
     },
     phone: {

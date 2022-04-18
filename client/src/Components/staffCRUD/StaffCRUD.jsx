@@ -256,7 +256,7 @@ function StaffCRUD () {
                                 </div>
                                 <div className="grid-container">
                                     <label className="myCustomlabel item1">Email:</label>
-                                    <input className="myCustomInput item2" ref={addEmail} placeholder="Name here" required type="email"/>
+                                    <input className="myCustomInput item2" ref={addEmail} placeholder="Email here" required type="email"/>
                                 </div>
                                 <div className="grid-container">
                                     <label className="myCustomlabel item1">Password:</label>

@@ -110,13 +110,6 @@ router.put("/changeIdeaFiles/:ideaId", upload.array("ideaDocs", 6), async (req, 
 //get  all ideas
 
 router.get("/allIdeas", async (req, res) => {
-  // try {
-  //   const filter = {};
-  //   const ideas = await Idea.find(filter);
-  //   res.status(200).json(ideas);
-  // } catch (err) {
-  //   res.status(500).json(err);
-  // }
   try {
     const filter = {};
     const ideas = await Idea.find(filter);
@@ -159,8 +152,8 @@ router.put("/comment/:ideaId", async (req, res) => {
   try {
     const idea = await Idea.findById(req.params.ideaId);
       await idea.updateOne({ $push: { comment: {
-        commenter: req.body.userId,
-        comment: req.body.comment} } });
+        commenterId: req.body.userId,
+        comment: req.body.commentContent} } });
       res.status(200).json("comment sent");
   } catch (err) {
     res.status(500).json(err);

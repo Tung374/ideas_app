@@ -11,9 +11,8 @@ function Register() {
 
   const navigate = useNavigate();
 
-  const handleRegister = async (e) => {
-    e.preventDefault();
-    if (passwordAgain.current.value !== password.current.value) {
+  const handleRegister = async () => {
+    if (passwordAgain.current.value != password.current.value) {
       passwordAgain.current.setCustomValidity("Passwords don't match!");
     } else {
       const user = {

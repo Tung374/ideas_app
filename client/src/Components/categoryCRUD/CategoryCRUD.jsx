@@ -135,6 +135,9 @@ function CategoryCRUD () {
                                     <th>ID</th>
                                     <th>Category</th>
                                     <th>Description</th>
+                                    <th>Delete</th>
+                                    <th>Edit</th>
+                                    <th>Details</th>
                                 </tr>
                             </thead>
                             <tbody>

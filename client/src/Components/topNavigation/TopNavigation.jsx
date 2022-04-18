@@ -22,7 +22,10 @@ function TopNavigation (props) {
         if(user.role=="admin") 
         {
             return (
-                <Dropdown.Item eventKey="/admin/category">Management Studio</Dropdown.Item>
+                <div>
+                    <Dropdown.Item eventKey="/admin/category">Management Studio</Dropdown.Item>
+                    <Dropdown.Item eventKey="/dashboard">Dashboard</Dropdown.Item>
+                </div>
         )}
     }
     
@@ -41,12 +44,13 @@ function TopNavigation (props) {
                         <DropdownButton onSelect={(e) => handleNavigate(e)} as={ButtonGroup} variant="primary" id="dropdown-basic-button" title={currentMode}>
                             <Dropdown.Item eventKey="/">Home</Dropdown.Item>
                             {handleAdminNav()}
-                            <Dropdown.Item eventKey="3">Something else</Dropdown.Item>
+                            <Dropdown.Item eventKey="3">
+                                <div>
+                                    <label className="paddingRight">Sign Out</label>
+                                    <FaSignOutAlt className="iconSize"></FaSignOutAlt>
+                                </div>
+                            </Dropdown.Item>
                         </DropdownButton>
-                        <Button  className="navigationContent signOutButton">
-                            <label className="paddingRight">Sign Out</label>
-                            <FaSignOutAlt className="iconSize"></FaSignOutAlt>
-                        </Button>
                     </div>
     )
 }
