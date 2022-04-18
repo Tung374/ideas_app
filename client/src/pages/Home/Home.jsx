@@ -17,6 +17,7 @@ import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 import LeftSection from '../../Components/leftSection/LeftSection'
 import TopNavigation from '../../Components/topNavigation/TopNavigation'
+import fileDownload from 'js-file-download';
 
 import { AuthContext } from "../../context/AuthContext";
 
@@ -92,6 +93,16 @@ function Home () {
     // fetch ideas
     const [ideas, setIdeas] = useState([])
     const [reversedIdeas, setReversedIdeas] = useState([])
+     const download=(e)=>{
+        e.preventDefault()
+        axios({
+            url:"http://localhost:3000",
+            method:"GET",
+            responseType:"blob"
+        }).then((res)=>{
+            fileDownload(res.data,"downloadedFile.docx")
+        })
+    }
 
     const fetchIdeas = async () => {
         try {
@@ -260,6 +271,10 @@ function Home () {
                     <div className="grid-container">
                         <label className="myCustomlabel item1">Description:</label>
                         <label className="myCustomlabel item2">{ideaDesc}</label>
+                    </div>
+                    <div className="grid-container">
+                    <label className="myCustomlabel item1">Attatch file:</label>
+                    <Button onClick={(e)=>download(e)}>Download </Button>
                     </div>
                     <div className="navigationContent">
                         <form className=" takeRemainingSpace">
