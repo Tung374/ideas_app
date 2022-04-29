@@ -17,7 +17,6 @@ import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 import LeftSection from '../../Components/leftSection/LeftSection'
 import TopNavigation from '../../Components/topNavigation/TopNavigation'
-import fileDownload from 'js-file-download';
 
 import { AuthContext } from "../../context/AuthContext";
 
