@@ -209,6 +209,15 @@ function CloseDate () {
                                     <label className="myCustomlabel item1">Post Close Date:</label>
                                     <DatePicker required showYearDropdown scrollableYearDropdown showTimeSelect dateFormat="Pp" selected={addPostCloseDate} 
                                     onChange={(date) => setAddPostCloseDate(date)} />
+                                    <DatePicker required showYearDropdown scrollableYearDropdown showTimeSelect dateFormat="Pp" selected={addOpenDate} onChange={(date) => setAddOpenDate(date)} />
+                                </div>
+                                <div className="grid-container">
+                                    <label className="myCustomlabel item1">Comment Close Date:</label>
+                                    <DatePicker required showYearDropdown scrollableYearDropdown showTimeSelect dateFormat="Pp" selected={addCommentCloseDate} onChange={(date) => setAddCommentCloseDate(date)} />
+                                </div>
+                                <div className="grid-container">
+                                    <label className="myCustomlabel item1">Post Close Date:</label>
+                                    <DatePicker required showYearDropdown scrollableYearDropdown showTimeSelect dateFormat="Pp" selected={addPostCloseDate} onChange={(date) => setAddPostCloseDate(date)} />
                                 </div>
                                 <Button className="myCustomFooterButton" type="submit" variant="primary">
                                     Create
