@@ -15,7 +15,7 @@ const router = express.Router();
 const path = require("path");
 
 dotenv.config();
-const PORT = process.env.PORT || 8800;
+const PORT = process.env.PORT || 4324;
 
 mongoose.connect(
   process.env.MONGO_URL,
