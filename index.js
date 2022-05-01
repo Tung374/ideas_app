@@ -51,9 +51,9 @@ app.use(morgan("common"));
 //   }
 // });
 
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static('client/build'));
-}
+// if (process.env.NODE_ENV === 'production') {
+//   app.use(express.static('client/build'));
+// }
 
 app.use("/api/auth", authRoute);
 app.use("/api/users", userRoute);
@@ -61,6 +61,13 @@ app.use("/api/posts", postRoute);
 app.use("/api/categories", categoryRoute)
 app.use("/api/ideas", ideaRoute)
 app.use("/api/closeDates", closeDateRoute)
+
+// Step 1:
+app.use(express.static(path.resolve(__dirname, "./client/build")));
+// Step 2:
+app.get("*", function (request, response) {
+  response.sendFile(path.resolve(__dirname, "./client/build", "index.html"));
+});
 
 app.listen(PORT, () => {
   console.log("Backend server is running!");
